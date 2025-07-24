@@ -40,11 +40,11 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
             <div key={bet.id} className="bg-white p-4 rounded-lg shadow">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h4 className="font-semibold">{bet.match}</h4>
-                  <p className="text-sm text-gray-600">{bet.selection}</p>
+                  <h4 className="font-semibold">{bet.homeTeam} vs {bet.awayTeam}</h4>
+                  <p className="text-sm text-gray-600">{bet.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${bet.amount}</p>
+                  <p className="font-semibold">${bet.stake}</p>
                   <p className="text-sm text-gray-600">@ {bet.odds}</p>
                 </div>
               </div>
@@ -57,8 +57,8 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
                   {bet.status.charAt(0).toUpperCase() + bet.status.slice(1)}
                 </span>
                 {bet.status !== 'pending' && (
-                  <span className={`font-semibold ${bet.payout && bet.payout > bet.amount ? 'text-green-600' : 'text-red-600'}`}>
-                    {bet.payout ? `+$${(bet.payout - bet.amount).toFixed(2)}` : `-$${bet.amount.toFixed(2)}`}
+                  <span className={`font-semibold ${bet.profit && bet.profit > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {bet.profit !== undefined ? `${bet.profit >= 0 ? '+' : ''}$${bet.profit.toFixed(2)}` : `-$${bet.stake.toFixed(2)}`}
                   </span>
                 )}
               </div>
