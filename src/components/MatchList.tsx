@@ -2,6 +2,8 @@ import React from 'react';
 import { Match } from '../types';
 import { Clock, Plus } from 'lucide-react';
 
+import { Search } from 'lucide-react';
+
 interface MatchListProps {
   matches: Match[];
   onMatchClick: (match: Match) => void;
@@ -10,6 +12,16 @@ interface MatchListProps {
 export const MatchList: React.FC<MatchListProps> = ({ matches, onMatchClick }) => {
   return (
     <div className="space-y-4">
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <input
+          type="text"
+          placeholder="Pesquisar um evento"
+          className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+        />
+      </div>
+
       {/* Header */}
       <div className="bg-emerald-600 text-white p-4 rounded-lg">
         <h2 className="text-lg font-semibold">PRÓXIMAS PARTIDAS</h2>

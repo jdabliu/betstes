@@ -42,25 +42,18 @@ function App() {
       <Header currentView={currentView} onViewChange={setCurrentView} />
       
       <div className="flex">
-        {currentView === 'matches' && (
-          <Sidebar 
-            selectedSport={selectedSport}
-            onSportChange={setSelectedSport}
-          />
-        )}
-        
-        <main className={`flex-1 p-6 ${currentView === 'matches' ? 'ml-0' : 'max-w-7xl mx-auto w-full'}`}>
+        <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
           {currentView === 'matches' && (
             <>
               {!selectedMatch ? (
-                <div className="max-w-4xl">
+                <div className="max-w-4xl mx-auto">
                   <MatchList
                     matches={mockMatches}
                     onMatchClick={handleMatchClick}
                   />
                 </div>
               ) : (
-                <div className="max-w-6xl">
+                <div className="max-w-6xl mx-auto">
                   <MatchDetails
                     match={selectedMatch}
                     onBack={handleBackToMatches}
