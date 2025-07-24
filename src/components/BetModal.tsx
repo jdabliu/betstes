@@ -21,26 +21,51 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
   }, [line]);
 
   const handleSubmit = () => {
-    if (!line || !match || !stakes || !odds) return;
+    if (!line || !match || !stake || !odds) return;
 
     const numOdds = parseFloat(odds);
     const numStake = parseFloat(stake);
     const potentialReturn = numOdds * numStake;
-    const ev = ((numOdds - 1) * 0.5 - 0.5) * 100; // Simple EV calculation
+    const ev = 0; // Will be calculated later
 
     const bet = {
       id: Date.now().toString(),
       matchId: match.id,
       homeTeam: match.homeTeam,
       awayTeam: match.awayTeam,
+      startTime: `${match.time} ${match.date.split(',')[0]}`,
+      betPlaced: new Date().toLocaleString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit'
+      }),
       betType: line.type,
       description: line.team ? `${line.team} ${line.description}` : line.description,
+      sport: 'Soccer',
+      competition: match.league,
+      market: line.type === 'handicap' ? 'Spreads' : 'Totals',
+      outcome: line.team ? `${line.team} ${line.description}` : line.description,
+      period: 'Match',
       odds: numOdds,
       stake: numStake,
       potentialReturn,
+      loggedEv: numOdds,
+      currentEv: Math.random() * 10 - 5, // Random EV for demo
+      clv: Math.random() * 20 - 10, // Random CLV for demo
       ev,
       status: 'pending' as const,
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      opening: {
+        avg: numOdds + (Math.random() * 0.2 - 0.1),
+        p: numOdds + (Math.random() * 0.1 - 0.05),
+        v: Math.random() * 15 + 5
+      },
+      close: {
+        avg: numOdds + (Math.random() * 0.1 - 0.05),
+        p: numOdds + (Math.random() * 0.05 - 0.025),
+        v: Math.random() * 20 + 10
+      }
     };
 
     onSubmit(bet);

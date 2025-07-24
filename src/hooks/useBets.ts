@@ -9,6 +9,12 @@ export const useBets = () => {
     setBets(prev => [bet, ...prev]);
   };
 
+  const updateBet = (betId: string, updates: Partial<Bet>) => {
+    setBets(prev => prev.map(bet => 
+      bet.id === betId ? { ...bet, ...updates } : bet
+    ));
+  };
+
   const calculateStats = (): Stats => {
     const totalBets = bets.length;
     const totalStake = bets.reduce((sum, bet) => sum + bet.stake, 0);
@@ -32,6 +38,7 @@ export const useBets = () => {
   return {
     bets,
     addBet,
+    updateBet,
     stats: calculateStats()
   };
 };
