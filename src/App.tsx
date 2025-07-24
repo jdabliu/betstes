@@ -4,7 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { MatchList } from './components/MatchList';
 import { MatchDetails } from './components/MatchDetails';
 import { BetModal } from './components/BetModal';
-import { MyBets } from './components/MyBets';
+import MyBets from './components/MyBets';
 import { mockMatches, generateMatchDetails } from './data/mockData';
 import { useBets } from './hooks/useBets';
 import { Match, MatchDetails as MatchDetailsType, BetLine } from './types';
