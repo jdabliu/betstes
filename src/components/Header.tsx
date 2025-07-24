@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
           {/* Logo */}
           <div className="flex items-center">
             <TrendingUp className="h-8 w-8 text-emerald-500" />
-            <span className="ml-2 text-xl font-bold text-white">BetTracker</span>
+            <span className="ml-2 text-xl font-bold text-white">BITS</span>
           </div>
 
           {/* Navigation */}
