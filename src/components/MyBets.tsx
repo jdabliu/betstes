@@ -21,15 +21,36 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
   // Generate chart data points for the profit line
   const chartData = React.useMemo(() => {
     let runningProfit = 0;
-    return bets.map((bet, index) => {
+    const data = bets.map((bet, index) => {
       runningProfit += bet.profit || 0;
-      return { x: index, y: runningProfit };
+      return { 
+        x: index, 
+        y: runningProfit,
+        date: bet.date,
+        profit: bet.profit || 0
+      };
     });
+    return data.reverse(); // Most recent first
+  }, [bets]);
+
+  const expectedData = React.useMemo(() => {
+    let runningExpected = 0;
+    const data = bets.map((bet, index) => {
+      runningExpected += (bet.stake * (bet.ev / 100));
+      return { 
+        x: index, 
+        y: runningExpected
+      };
+    });
+    return data.reverse();
   }, [bets]);
 
   const maxProfit = Math.max(...chartData.map(d => d.y), 0);
   const minProfit = Math.min(...chartData.map(d => d.y), 0);
-  const range = maxProfit - minProfit || 1000;
+  const range = Math.max(maxProfit - minProfit, 1000);
+  const padding = range * 0.1;
+
+  const [hoveredPoint, setHoveredPoint] = React.useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -83,52 +104,140 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
           </div>
         </div>
         
-        <div className="bg-slate-800 rounded-lg p-4 h-64 relative overflow-hidden">
-          <svg className="w-full h-full">
+        <div className="bg-slate-800 rounded-lg p-6 h-80 relative overflow-hidden">
+          <svg 
+            className="w-full h-full" 
+            viewBox="0 0 100 100" 
+            preserveAspectRatio="none"
+            onMouseLeave={() => setHoveredPoint(null)}
+          >
+            <defs>
+              <linearGradient id="profitGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
+                <stop offset="50%" stopColor="#10b981" stopOpacity="0.4"/>
+                <stop offset="100%" stopColor="#10b981" stopOpacity="0.1"/>
+              </linearGradient>
+              <linearGradient id="expectedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#6ee7b7" stopOpacity="0.6"/>
+                <stop offset="50%" stopColor="#6ee7b7" stopOpacity="0.3"/>
+                <stop offset="100%" stopColor="#6ee7b7" stopOpacity="0.1"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
             {/* Grid lines */}
-            {[0, 25, 50, 75, 100].map(percent => (
-              <line
-                key={percent}
-                x1="0"
-                y1={`${percent}%`}
-                x2="100%"
-                y2={`${percent}%`}
-                stroke="#374151"
-                strokeWidth="1"
-                opacity="0.3"
-              />
+            {[0, 20, 40, 60, 80, 100].map(percent => (
+              <g key={percent}>
+                <line
+                  x1="0"
+                  y1={percent}
+                  x2="100"
+                  y2={percent}
+                  stroke="#374151"
+                  strokeWidth="0.2"
+                  opacity="0.5"
+                />
+                <text
+                  x="2"
+                  y={percent - 1}
+                  fill="#6b7280"
+                  fontSize="2"
+                  opacity="0.7"
+                >
+                  R${((maxProfit + padding) - (percent / 100) * (range + 2 * padding) + (minProfit - padding)).toFixed(0)}
+                </text>
+              </g>
             ))}
             
-            {/* Profit line */}
+            {/* Expected profit area */}
+            {expectedData.length > 1 && (
+              <path
+                d={`M ${expectedData.map((point, index) => 
+                  `${(index / (expectedData.length - 1)) * 100},${100 - ((point.y - (minProfit - padding)) / (range + 2 * padding)) * 100}`
+                ).join(' L ')} L 100,100 L 0,100 Z`}
+                fill="url(#expectedGradient)"
+              />
+            )}
+            
+            {/* Expected profit line */}
+            {expectedData.length > 1 && (
+              <path
+                d={`M ${expectedData.map((point, index) => 
+                  `${(index / (expectedData.length - 1)) * 100},${100 - ((point.y - (minProfit - padding)) / (range + 2 * padding)) * 100}`
+                ).join(' L ')}`}
+                fill="none"
+                stroke="#6ee7b7"
+                strokeWidth="0.5"
+                strokeDasharray="2,2"
+                opacity="0.8"
+              />
+            )}
+            
+            {/* Actual profit area */}
             {chartData.length > 1 && (
               <path
                 d={`M ${chartData.map((point, index) => 
-                  `${(index / (chartData.length - 1)) * 100},${100 - ((point.y - minProfit) / range) * 100}`
+                  `${(index / (chartData.length - 1)) * 100},${100 - ((point.y - (minProfit - padding)) / (range + 2 * padding)) * 100}`
+                ).join(' L ')} L 100,100 L 0,100 Z`}
+                fill="url(#profitGradient)"
+              />
+            )}
+            
+            {/* Actual profit line */}
+            {chartData.length > 1 && (
+              <path
+                d={`M ${chartData.map((point, index) => 
+                  `${(index / (chartData.length - 1)) * 100},${100 - ((point.y - (minProfit - padding)) / (range + 2 * padding)) * 100}`
                 ).join(' L ')}`}
                 fill="none"
                 stroke="#10b981"
-                strokeWidth="2"
+                strokeWidth="0.8"
+                filter="url(#glow)"
               />
             )}
             
-            {/* Fill area under curve */}
-            {chartData.length > 1 && (
-              <path
-                d={`M ${chartData.map((point, index) => 
-                  `${(index / (chartData.length - 1)) * 100},${100 - ((point.y - minProfit) / range) * 100}`
-                ).join(' L ')} L 100,100 L 0,100 Z`}
-                fill="url(#gradient)"
-                opacity="0.3"
-              />
-            )}
-            
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0.1"/>
-              </linearGradient>
-            </defs>
+            {/* Interactive points */}
+            {chartData.map((point, index) => {
+              const x = (index / (chartData.length - 1)) * 100;
+              const y = 100 - ((point.y - (minProfit - padding)) / (range + 2 * padding)) * 100;
+              return (
+                <circle
+                  key={index}
+                  cx={x}
+                  cy={y}
+                  r={hoveredPoint === index ? "1" : "0.5"}
+                  fill="#10b981"
+                  stroke="#ffffff"
+                  strokeWidth="0.2"
+                  opacity={hoveredPoint === index ? "1" : "0.7"}
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setHoveredPoint(index)}
+                />
+              );
+            })}
           </svg>
+          
+          {/* Tooltip */}
+          {hoveredPoint !== null && (
+            <div 
+              className="absolute bg-slate-700 text-white p-2 rounded shadow-lg text-xs pointer-events-none z-10"
+              style={{
+                left: `${(hoveredPoint / (chartData.length - 1)) * 100}%`,
+                top: '10px',
+                transform: 'translateX(-50%)'
+              }}
+            >
+              <div>Data: {chartData[hoveredPoint]?.date}</div>
+              <div>Lucro: R${chartData[hoveredPoint]?.y.toFixed(2)}</div>
+              <div>Aposta: R${chartData[hoveredPoint]?.profit?.toFixed(2)}</div>
+            </div>
+          )}
         </div>
       </div>
 
