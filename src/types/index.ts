@@ -49,6 +49,8 @@ export interface Bet {
   ev: number;
   status: 'pending' | 'won' | 'lost' | 'void';
   date: string;
+  bookmaker?: string;
+  tags?: string[];
   result?: string;
   profit?: number;
   opening: {

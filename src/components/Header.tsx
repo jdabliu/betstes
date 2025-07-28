@@ -27,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
                   : 'text-gray-300 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Partidas
+              Matches
             </button>
             <button
               onClick={() => onViewChange('my-bets')}
@@ -37,14 +37,14 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
                   : 'text-gray-300 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Minhas Bets
+              My Bets
             </button>
           </nav>
 
           {/* User section */}
           <div className="flex items-center space-x-4">
             <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-              Apostar
+              Bet
             </button>
             <button className="p-2 rounded-full text-gray-300 hover:text-white hover:bg-slate-700 transition-colors">
               <User className="h-5 w-5" />

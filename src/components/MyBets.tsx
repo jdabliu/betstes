@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bet, Stats } from '../types';
-import { TrendingUp, TrendingDown, Download, Search, Filter, Tag, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Download, Search, Filter, Tag, BarChart3, Settings } from 'lucide-react';
+import { useTags } from '../hooks/useTags';
 
 interface MyBetsProps {
   bets: Bet[];
@@ -8,8 +9,10 @@ interface MyBetsProps {
 }
 
 export default function MyBets({ bets, stats }: MyBetsProps) {
+  const { tags } = useTags();
   const [selectedFilter, setSelectedFilter] = React.useState('all');
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [showSettings, setShowSettings] = React.useState(false);
 
   // Calculate additional stats
   const totalProfit = bets.reduce((sum, bet) => sum + (bet.profit || 0), 0);
@@ -18,44 +21,19 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
   const yield_ = totalTurnover > 0 ? (totalProfit / totalTurnover) * 100 : 0;
   const roi = totalTurnover > 0 ? (totalProfit / totalTurnover) * 100 : 0;
 
-  // Generate chart data points for the profit line
-  const chartData = React.useMemo(() => {
-    let runningProfit = 0;
-    const data = bets.map((bet, index) => {
-      runningProfit += bet.profit || 0;
-      return { 
-        x: index, 
-        y: runningProfit,
-        date: bet.date,
-        profit: bet.profit || 0
-      };
-    });
-    return data.reverse(); // Most recent first
-  }, [bets]);
-
-  const expectedData = React.useMemo(() => {
-    let runningExpected = 0;
-    const data = bets.map((bet, index) => {
-      runningExpected += (bet.stake * (bet.ev / 100));
-      return { 
-        x: index, 
-        y: runningExpected
-      };
-    });
-    return data.reverse();
-  }, [bets]);
-
-  const maxProfit = Math.max(...chartData.map(d => d.y), 0);
-  const minProfit = Math.min(...chartData.map(d => d.y), 0);
-  const range = Math.max(maxProfit - minProfit, 1000);
-  const padding = range * 0.1;
-
-  const [hoveredPoint, setHoveredPoint] = React.useState<number | null>(null);
-
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       {/* Header Stats */}
       <div className="bg-slate-800 border-b border-slate-700 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">My Bets</h2>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2 hover:bg-slate-700 rounded-full transition-colors"
+          >
+            <Settings className="h-5 w-5 text-gray-400" />
+          </button>
+        </div>
         <div className="grid grid-cols-5 gap-6">
           <div className="bg-slate-900 rounded-lg p-4">
             <div className="text-gray-400 text-sm mb-1">Profit</div>
@@ -132,7 +110,7 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
                 <line x1="0" y1="160" x2="800" y2="160"/>
               </g>
               
-              {/* Main profit area - simulating the green area from image */}
+              {/* Main profit area */}
               <path
                 d="M 0,120 L 100,115 L 200,110 L 300,105 L 400,100 L 500,95 L 600,90 L 700,85 L 800,80 L 800,200 L 0,200 Z"
                 fill="url(#areaGradient)"
@@ -146,7 +124,7 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
                 strokeWidth="2"
               />
               
-              {/* Expected profit line (darker green, slightly above) */}
+              {/* Expected profit line */}
               <path
                 d="M 0,115 L 100,110 L 200,105 L 300,100 L 400,95 L 500,90 L 600,85 L 700,80 L 800,75"
                 fill="none"
@@ -211,83 +189,83 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
         <table className="w-full">
           <thead className="bg-slate-800 border-b border-slate-700">
             <tr className="text-left text-sm text-gray-400">
-              <th className="p-4 font-medium">Event</th>
-              <th className="p-4 font-medium">Start time</th>
-              <th className="p-4 font-medium">Bet placed</th>
-              <th className="p-4 font-medium">Type</th>
-              <th className="p-4 font-medium">Sport</th>
-              <th className="p-4 font-medium">Competition</th>
-              <th className="p-4 font-medium">Market</th>
-              <th className="p-4 font-medium">Outcome</th>
-              <th className="p-4 font-medium">Period</th>
-              <th className="p-4 font-medium">Stake</th>
-              <th className="p-4 font-medium">Odds</th>
-              <th className="p-4 font-medium">Logged EV</th>
-              <th className="p-4 font-medium">Current EV</th>
-              <th className="p-4 font-medium">CLV</th>
-              <th className="p-4 font-medium">Logged</th>
-              <th className="p-4 font-medium">Opening</th>
-              <th className="p-4 font-medium">Close</th>
-              <th className="p-4 font-medium">Result</th>
-              <th className="p-4 font-medium">Profit</th>
+              <th className="p-3 font-medium">Event</th>
+              <th className="p-3 font-medium">Start time</th>
+              <th className="p-3 font-medium">Bet placed</th>
+              <th className="p-3 font-medium">Type</th>
+              <th className="p-3 font-medium">Sport</th>
+              <th className="p-3 font-medium">Competition</th>
+              <th className="p-3 font-medium">Market</th>
+              <th className="p-3 font-medium">Outcome</th>
+              <th className="p-3 font-medium">Bookmaker</th>
+              <th className="p-3 font-medium">Tags</th>
+              <th className="p-3 font-medium">Stake</th>
+              <th className="p-3 font-medium">Odds</th>
+              <th className="p-3 font-medium">CLV</th>
+              <th className="p-3 font-medium">Opening</th>
+              <th className="p-3 font-medium">Close</th>
+              <th className="p-3 font-medium">Result</th>
+              <th className="p-3 font-medium">Profit</th>
             </tr>
           </thead>
           <tbody>
             {bets.map((bet, index) => (
               <tr key={bet.id} className="border-b border-slate-700 hover:bg-slate-800/50 text-sm">
-                <td className="p-4">
+                <td className="p-3">
                   <div className="flex items-center space-x-2">
                     <input type="checkbox" className="rounded" />
                     <span className="text-white">{bet.homeTeam} vs {bet.awayTeam}</span>
                   </div>
                 </td>
-                <td className="p-4 text-gray-300">{bet.startTime}</td>
-                <td className="p-4 text-gray-300">{bet.betPlaced}</td>
-                <td className="p-4">
+                <td className="p-3 text-gray-300">{bet.startTime}</td>
+                <td className="p-3 text-gray-300">{bet.betPlaced}</td>
+                <td className="p-3">
                   <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
-                    {bet.betType === 'handicap' ? 'Pre-match' : 'Pre-match'}
+                    Pre-match
                   </span>
                 </td>
-                <td className="p-4 text-gray-300">{bet.sport}</td>
-                <td className="p-4 text-gray-300">{bet.competition}</td>
-                <td className="p-4 text-gray-300">{bet.market}</td>
-                <td className="p-4 text-gray-300">{bet.outcome}</td>
-                <td className="p-4 text-gray-300">{bet.period}</td>
-                <td className="p-4 text-white">R${bet.stake.toFixed(2)}</td>
-                <td className="p-4 text-white">{bet.odds.toFixed(3)}</td>
-                <td className="p-4 text-gray-300">{bet.loggedEv.toFixed(3)}</td>
-                <td className="p-4">
-                  <span className={bet.currentEv >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                    {bet.currentEv.toFixed(1)}%
-                  </span>
+                <td className="p-3 text-gray-300">{bet.sport}</td>
+                <td className="p-3 text-gray-300">{bet.competition}</td>
+                <td className="p-3 text-gray-300">{bet.market}</td>
+                <td className="p-3 text-gray-300">{bet.outcome}</td>
+                <td className="p-3 text-gray-300">{bet.bookmaker || 'Bet365'}</td>
+                <td className="p-3">
+                  <div className="flex flex-wrap gap-1">
+                    {bet.tags?.map(tagId => {
+                      const tag = tags.find(t => t.id === tagId);
+                      return tag ? (
+                        <span
+                          key={tagId}
+                          className={`px-2 py-1 rounded-full text-xs ${tag.color} text-white`}
+                        >
+                          {tag.name}
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
                 </td>
-                <td className="p-4">
+                <td className="p-3 text-white">R${bet.stake.toFixed(2)}</td>
+                <td className="p-3 text-white">{bet.odds.toFixed(3)}</td>
+                <td className="p-3">
                   <span className={bet.clv >= 0 ? 'text-emerald-400' : 'text-red-400'}>
                     {bet.clv >= 0 ? '+' : ''}{bet.clv.toFixed(1)}%
                   </span>
                 </td>
-                <td className="p-4 text-gray-300">
+                <td className="p-3 text-gray-300">
                   <div className="text-xs">
                     <div>AVG: {bet.opening.avg.toFixed(3)}</div>
                     <div>P: {bet.opening.p.toFixed(3)}</div>
                     <div>V: {bet.opening.v.toFixed(2)}%</div>
                   </div>
                 </td>
-                <td className="p-4 text-gray-300">
-                  <div className="text-xs">
-                    <div>AVG: {bet.opening.avg.toFixed(3)}</div>
-                    <div>P: {bet.opening.p.toFixed(3)}</div>
-                    <div>V: {bet.opening.v.toFixed(2)}%</div>
-                  </div>
-                </td>
-                <td className="p-4 text-gray-300">
+                <td className="p-3 text-gray-300">
                   <div className="text-xs">
                     <div>AVG: {bet.close.avg.toFixed(3)}</div>
                     <div>P: {bet.close.p.toFixed(3)}</div>
                     <div>V: {bet.close.v.toFixed(2)}%</div>
                   </div>
                 </td>
-                <td className="p-4">
+                <td className="p-3">
                   <span className={`px-2 py-1 text-xs rounded ${
                     bet.status === 'won' ? 'bg-emerald-600 text-white' :
                     bet.status === 'lost' ? 'bg-red-600 text-white' :
@@ -296,7 +274,7 @@ export default function MyBets({ bets, stats }: MyBetsProps) {
                     {bet.status === 'pending' ? 'PENDING' : bet.result?.toUpperCase()}
                   </span>
                 </td>
-                <td className="p-4">
+                <td className="p-3">
                   <span className={`font-medium ${
                     (bet.profit || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
                   }`}>

@@ -35,7 +35,6 @@ export const MatchDetails: React.FC<MatchDetailsProps> = ({ match, onBack, onBet
         <div className="text-center text-white font-bold text-lg mb-4">1X2</div>
         <div className="flex justify-center space-x-4">
           <div className="bg-white/10 rounded-lg p-4 text-center cursor-pointer hover:bg-white/20 transition-colors min-w-[100px]">
-            <div className="text-white font-bold text-xl">{match.homeTeam}</div>
             <div className="text-xs text-emerald-100 mt-1">1</div>
             <div className="text-white font-bold text-lg flex items-center justify-center">
               {match.odds.home.toFixed(2)}
@@ -43,7 +42,7 @@ export const MatchDetails: React.FC<MatchDetailsProps> = ({ match, onBack, onBet
             </div>
           </div>
           <div className="bg-white/10 rounded-lg p-4 text-center cursor-pointer hover:bg-white/20 transition-colors min-w-[100px]">
-            <div className="text-white font-bold text-xl">Empate</div>
+            <div className="text-white font-bold text-xl">Draw</div>
             <div className="text-xs text-emerald-100 mt-1">N</div>
             <div className="text-white font-bold text-lg flex items-center justify-center">
               {match.odds.draw.toFixed(2)}
@@ -51,7 +50,6 @@ export const MatchDetails: React.FC<MatchDetailsProps> = ({ match, onBack, onBet
             </div>
           </div>
           <div className="bg-white/10 rounded-lg p-4 text-center cursor-pointer hover:bg-white/20 transition-colors min-w-[100px]">
-            <div className="text-white font-bold text-xl">{match.awayTeam}</div>
             <div className="text-xs text-emerald-100 mt-1">2</div>
             <div className="text-white font-bold text-lg flex items-center justify-center">
               {match.odds.away.toFixed(2)}
@@ -69,8 +67,8 @@ export const MatchDetails: React.FC<MatchDetailsProps> = ({ match, onBack, onBet
           </div>
           <div className="p-4 space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-400 mb-3">
-              <div className="text-center font-medium">{match.homeTeam.toUpperCase()}</div>
-              <div className="text-center font-medium">{match.awayTeam.toUpperCase()}</div>
+              <div className="text-center font-medium">HOME</div>
+              <div className="text-center font-medium">AWAY</div>
             </div>
             {Array.from({ length: handicapLines.length / 2 }).map((_, i) => {
               const homeLine = handicapLines[i * 2];
@@ -100,12 +98,12 @@ export const MatchDetails: React.FC<MatchDetailsProps> = ({ match, onBack, onBet
         {/* Totals */}
         <div className="bg-slate-800 rounded-lg overflow-hidden">
           <div className="bg-emerald-600 text-white p-3 text-center font-bold">
-            Pontos: mais/menos
+            Totals
           </div>
           <div className="p-4 space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-400 mb-3">
-              <div className="text-center font-medium">Mais</div>
-              <div className="text-center font-medium">Menos</div>
+              <div className="text-center font-medium">Over</div>
+              <div className="text-center font-medium">Under</div>
             </div>
             {Array.from({ length: totalLines.length / 2 }).map((_, i) => {
               const moreLine = totalLines[i * 2];

@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { MatchList } from './components/MatchList';
 import { MatchDetails } from './components/MatchDetails';
 import { BetModal } from './components/BetModal';
+import { SettingsModal } from './components/SettingsModal';
 import MyBets from './components/MyBets';
 import { mockMatches, generateMatchDetails } from './data/mockData';
 import { useBets } from './hooks/useBets';
@@ -14,6 +15,7 @@ function App() {
   const [selectedSport, setSelectedSport] = useState('futebol');
   const [selectedMatch, setSelectedMatch] = useState<MatchDetailsType | null>(null);
   const [betModalOpen, setBetModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [selectedBetLine, setSelectedBetLine] = useState<BetLine | null>(null);
   const { bets, addBet, stats } = useBets();
 
@@ -65,7 +67,7 @@ function App() {
           )}
           
           {currentView === 'my-bets' && (
-            <MyBets bets={bets} stats={stats} />
+            <MyBets bets={bets} stats={stats} onOpenSettings={() => setSettingsModalOpen(true)} />
           )}
         </main>
       </div>
@@ -76,6 +78,11 @@ function App() {
         line={selectedBetLine}
         match={selectedMatch}
         onSubmit={handleBetSubmit}
+      />
+
+      <SettingsModal
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
       />
     </div>
   );
