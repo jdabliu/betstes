@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { BetLine, MatchDetails } from '../types';
 import { useTags, Tag } from '../hooks/useTags';
 import { useSettings } from '../hooks/useSettings';
@@ -19,17 +19,6 @@ const bookmakers = [
   'Cassino'
 ];
 
-const colors = [
-  'bg-emerald-500',
-  'bg-blue-500',
-  'bg-purple-500',
-  'bg-yellow-500',
-  'bg-red-500',
-  'bg-pink-500',
-  'bg-indigo-500',
-  'bg-orange-500'
-];
-
 export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match, onSubmit }) => {
   const { tags, addTag } = useTags();
   const { settings } = useSettings();
@@ -37,20 +26,28 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
   const [stake, setStake] = useState(settings.lockStake ? settings.defaultStake.toString() : '');
   const [selectedBookmaker, setSelectedBookmaker] = useState('Bet365');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showNewTagForm, setShowNewTagForm] = useState(false);
-  const [newTagName, setNewTagName] = useState('');
-  const [newTagColor, setNewTagColor] = useState('bg-emerald-500');
+  const [period, setPeriod] = useState('Match');
+  const [market, setMarket] = useState('Spreads');
 
   React.useEffect(() => {
     if (line) {
       setOdds(line.odds.toFixed(2));
+      // Set market based on line type
+      if (line.type === 'handicap') {
+        setMarket('Spreads');
+      } else if (line.type === 'total') {
+        setMarket('Totals');
+      } else {
+        setMarket('Moneyline (3-way)');
+      }
     }
     if (settings.lockStake) {
       setStake(settings.defaultStake.toString());
     }
   }, [line, settings]);
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!line || !match || !stake || !odds) return;
 
     const numOdds = parseFloat(odds);
@@ -84,9 +81,9 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
       description,
       sport: 'Soccer',
       competition: match.league,
-      market: line.type === 'handicap' ? 'Spreads' : 'Totals',
+      market,
       outcome: description,
-      period: 'Match',
+      period,
       odds: numOdds,
       stake: numStake,
       potentialReturn,
@@ -118,187 +115,164 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
     setSelectedTags([]);
   };
 
-  const handleTagToggle = (tagId: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tagId) 
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    );
-  };
-
-  const handleCreateTag = () => {
-    if (newTagName.trim()) {
-      const newTag = addTag(newTagName.trim(), newTagColor);
-      setSelectedTags(prev => [...prev, newTag.id]);
-      setNewTagName('');
-      setShowNewTagForm(false);
-    }
-  };
-
   if (!isOpen || !line || !match) return null;
+
+  const getOutcomeText = () => {
+    if (line.type === 'handicap') {
+      const team = line.team === match.homeTeam ? match.homeTeam : match.awayTeam;
+      return `${line.description} ${team}`;
+    }
+    return line.description;
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-slate-800 rounded-lg p-6 w-96 max-w-sm mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white">Log Bet</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+      <div 
+        className="fixed z-50 grid gap-4 border border-neutral-200 bg-white p-6 shadow-lg duration-200 dark:border-neutral-800 dark:bg-neutral-950 sm:rounded-lg left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg w-[400px]"
+        role="dialog"
+      >
+        <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+          <h2 className="text-lg font-semibold leading-none tracking-tight text-white">Log bet</h2>
         </div>
-
-        <div className="space-y-4">
-          {/* Match info */}
-          <div className="bg-slate-700 p-3 rounded">
-            <div className="text-white font-medium text-sm">
-              {match.homeTeam} vs {match.awayTeam}
-            </div>
-          </div>
-
-          {/* Bet type */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-1">
-              {line.type === 'handicap' ? 'Handicap' : 'Total'}
-            </label>
-            <div className="bg-slate-700 p-3 rounded text-white">
-              {line.type === 'handicap' 
-                ? `${line.team === match.homeTeam ? 'Home' : 'Away'} ${line.description}`
-                : line.description
-              }
-            </div>
-          </div>
-
-          {/* Bookmaker */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-1">Bookmaker</label>
-            <select
-              value={selectedBookmaker}
-              onChange={(e) => setSelectedBookmaker(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded p-3 text-white focus:outline-none focus:border-emerald-500"
-            >
-              {bookmakers.map(bookmaker => (
-                <option key={bookmaker} value={bookmaker}>{bookmaker}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-2">Tags</label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map(tag => (
-                <button
-                  key={tag.id}
-                  onClick={() => handleTagToggle(tag.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    selectedTags.includes(tag.id)
-                      ? `${tag.color} text-white`
-                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  }`}
-                >
-                  {tag.name}
-                </button>
-              ))}
+        
+        <div className="max-sm:overflow-auto max-sm:px-4">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Match Selection */}
+            <div className="space-y-2">
               <button
-                onClick={() => setShowNewTagForm(true)}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-slate-700 text-gray-300 hover:bg-slate-600 flex items-center"
+                type="button"
+                className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 h-10 px-4 py-2 sm:max-w-[350px]"
+                disabled
               >
-                <Plus className="h-3 w-3 mr-1" />
-                New Tag
+                <span className="max-w-[90%] truncate text-left text-white">
+                  {match.homeTeam} vs {match.awayTeam} [Pre-match]
+                </span>
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </button>
             </div>
 
-            {showNewTagForm && (
-              <div className="bg-slate-700 p-3 rounded space-y-2">
-                <input
-                  type="text"
-                  placeholder="Tag name"
-                  value={newTagName}
-                  onChange={(e) => setNewTagName(e.target.value)}
-                  className="w-full bg-slate-600 border border-slate-500 rounded p-2 text-white text-sm focus:outline-none focus:border-emerald-500"
-                />
-                <div className="flex space-x-2">
-                  {colors.map(color => (
-                    <button
-                      key={color}
-                      onClick={() => setNewTagColor(color)}
-                      className={`w-6 h-6 rounded-full ${color} ${
-                        newTagColor === color ? 'ring-2 ring-white' : ''
-                      }`}
-                    />
-                  ))}
+            {/* Period Selection */}
+            <div className="space-y-2">
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 sm:text-sm text-white"
+              >
+                <option value="Match">Match</option>
+                <option value="1st Half">1st Half</option>
+              </select>
+            </div>
+
+            {/* Market Selection */}
+            <div className="space-y-2">
+              <select
+                value={market}
+                onChange={(e) => setMarket(e.target.value)}
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 sm:text-sm text-white"
+              >
+                <option value="Moneyline (3-way)">Moneyline (3-way)</option>
+                <option value="Spreads">Spreads</option>
+                <option value="Totals">Totals</option>
+              </select>
+            </div>
+
+            {/* Outcome Selection */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 sm:text-sm text-white"
+                disabled
+              >
+                <span>{getOutcomeText()}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </button>
+            </div>
+
+            <hr className="border-neutral-800" />
+
+            {/* Odds, Stake, and removed EV section */}
+            <div className="mt-4 flex flex-col gap-4">
+              <div className="flex items-end gap-2">
+                <div className="space-y-2 flex-1">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                    Odds
+                  </label>
+                  <input
+                    type="text"
+                    value={odds}
+                    onChange={(e) => setOdds(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:ring-neutral-300 sm:text-sm text-white"
+                    inputMode="numeric"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleCreateTag}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1 px-3 rounded text-sm"
-                  >
-                    Create
-                  </button>
-                  <button
-                    onClick={() => setShowNewTagForm(false)}
-                    className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-1 px-3 rounded text-sm"
-                  >
-                    Cancel
-                  </button>
+                
+                <div className="space-y-2 flex-1">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                    Stake
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">R$</span>
+                    <input
+                      type="text"
+                      value={stake}
+                      onChange={(e) => !settings.lockStake && setStake(e.target.value)}
+                      disabled={settings.lockStake}
+                      className={`flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:ring-neutral-300 sm:text-sm pl-11 text-white ${
+                        settings.lockStake ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      inputMode="decimal"
+                      pattern="[0-9]*[.,]?[0-9]{0,2}"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Odds */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-1">Odds</label>
-            <input
-              type="number"
-              step="0.01"
-              value={odds}
-              onChange={(e) => setOdds(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded p-3 text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-
-          {/* Stake */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-1">Stake</label>
-            <div className="flex items-center">
-              <span className="bg-slate-700 border border-slate-600 rounded-l p-3 text-gray-400">R$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={stake}
-                onChange={(e) => !settings.lockStake && setStake(e.target.value)}
-                disabled={settings.lockStake}
-                className={`flex-1 bg-slate-700 border border-slate-600 border-l-0 rounded-r p-3 text-white focus:outline-none focus:border-emerald-500 ${
-                  settings.lockStake ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-                placeholder="0.00"
-              />
+              {/* Tags Selection */}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 h-10 px-4 py-[0.4375rem]"
+                >
+                  <div className="mx-auto flex w-full items-center justify-between">
+                    <span className="text-base opacity-50 sm:text-sm text-white">
+                      Select tags (optional)
+                    </span>
+                    <ChevronDown className="ml-2 h-4 w-4 cursor-pointer opacity-50" />
+                  </div>
+                </button>
+              </div>
             </div>
-            {settings.lockStake && (
-              <p className="text-xs text-gray-500 mt-1">Stake is locked in settings</p>
-            )}
-          </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-100 text-neutral-900 dark:text-neutral-50 hover:bg-neutral-100/80 dark:bg-neutral-800 dark:hover:bg-neutral-800/80 h-10 px-4 py-2 max-sm:text-base"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!stake || !odds}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90 h-10 px-4 py-2 max-sm:text-base"
+              >
+                Log bet
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div className="flex space-x-3 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!stake || !odds}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white py-2 px-4 rounded transition-colors"
-          >
-            Log Bet
-          </button>
-        </div>
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-neutral-950 dark:focus:ring-neutral-300"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
       </div>
     </div>
   );
