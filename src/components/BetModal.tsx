@@ -190,7 +190,7 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
             <hr className="border-neutral-800" />
 
-            {/* Odds, Stake, and removed EV section */}
+            {/* Odds and Stake section */}
             <div className="mt-4 flex flex-col gap-4">
               <div className="flex items-end gap-2">
                 <div className="space-y-2 flex-1">
