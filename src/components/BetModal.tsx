@@ -266,14 +266,6 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      EV
-                    </label>
-                    <div className="flex h-10 w-24 items-center justify-center rounded px-3 border-neutral-300 bg-neutral-400/10 text-neutral-300" data-state="closed">
-                      <p className="truncate font-mono text-sm">N/A</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Tags Selection */}
