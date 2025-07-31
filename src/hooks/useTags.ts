@@ -7,11 +7,14 @@ export interface Tag {
 }
 
 const defaultTags: Tag[] = [
-  { id: '1', name: 'Value Bet', color: 'bg-emerald-500' },
-  { id: '2', name: 'Live Bet', color: 'bg-blue-500' },
-  { id: '3', name: 'High Confidence', color: 'bg-purple-500' },
-  { id: '4', name: 'Arbitrage', color: 'bg-yellow-500' },
-  { id: '5', name: 'System Bet', color: 'bg-red-500' },
+  { id: '1', name: '7k.bet', color: 'bg-emerald-500' },
+  { id: '2', name: 'Betano', color: 'bg-blue-500' },
+  { id: '3', name: 'Pinnacle', color: 'bg-purple-500' },
+  { id: '4', name: 'Bet365', color: 'bg-yellow-500' },
+  { id: '5', name: 'James', color: 'bg-red-500' },
+  { id: '6', name: 'Joao', color: 'bg-green-500' },
+  { id: '7', name: 'Pedro', color: 'bg-orange-500' },
+  { id: '8', name: 'Betbra', color: 'bg-pink-500' },
 ];
 
 export const useTags = () => {

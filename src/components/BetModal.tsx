@@ -12,11 +12,14 @@ interface BetModalProps {
   onSubmit: (bet: any) => void;
 }
 
-const bookmakers = [
-  'bet365',
-  'Pinnacle',
-  'Bet7k',
-  'Cassino'
+  { id: '1', name: '7k.bet', color: 'bg-emerald-500' },
+  { id: '2', name: 'Betano', color: 'bg-blue-500' },
+  { id: '3', name: 'Pinnacle', color: 'bg-purple-500' },
+  { id: '4', name: 'Bet365', color: 'bg-yellow-500' },
+  { id: '5', name: 'James', color: 'bg-red-500' },
+  { id: '6', name: 'Joao', color: 'bg-green-500' },
+  { id: '7', name: 'Pedro', color: 'bg-orange-500' },
+  { id: '8', name: 'Betbra', color: 'bg-pink-500' },
 ];
 
 export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match, onSubmit }) => {
@@ -292,21 +295,21 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
                   {/* Tags Dropdown */}
                   {showTagsDropdown && (
-                    <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-neutral-950 border border-neutral-800 rounded-md shadow-lg">
+                    <div className="absolute bottom-full left-0 right-0 z-10 mb-1 bg-neutral-950 border border-neutral-800 rounded-md shadow-lg">
                       <div className="p-3">
                         <div className="relative mb-3">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 h-4 w-4" />
                           <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search…"
                             value={tagSearch}
                             onChange={(e) => setTagSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-700 rounded text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-500"
+                            className="w-full pl-10 pr-4 py-2 bg-transparent border-b border-neutral-700 text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-500"
                           />
                         </div>
                         
                         <div className="space-y-2 max-h-40 overflow-y-auto">
-                          <label className="flex items-center space-x-2 text-neutral-400 hover:text-white cursor-pointer">
+                          <label className="flex items-center space-x-3 text-white hover:text-neutral-300 cursor-pointer py-1">
                             <input
                               type="checkbox"
                               checked={selectedTags.length === tags.length}
@@ -317,18 +320,18 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                                   setSelectedTags([]);
                                 }
                               }}
-                              className="rounded"
+                              className="w-4 h-4 rounded border-neutral-600 bg-transparent"
                             />
                             <span>(Select All)</span>
                           </label>
                           
                           {filteredTags.map((tag) => (
-                            <label key={tag.id} className="flex items-center space-x-2 text-white hover:text-neutral-300 cursor-pointer">
+                            <label key={tag.id} className="flex items-center space-x-3 text-white hover:text-neutral-300 cursor-pointer py-1">
                               <input
                                 type="checkbox"
                                 checked={selectedTags.includes(tag.id)}
                                 onChange={() => toggleTag(tag.id)}
-                                className="rounded"
+                                className="w-4 h-4 rounded border-neutral-600 bg-transparent"
                               />
                               <span>{tag.name}</span>
                             </label>
@@ -338,15 +341,8 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                         <div className="flex justify-between mt-3 pt-3 border-t border-neutral-800">
                           <button
                             type="button"
-                            onClick={() => setSelectedTags([])}
-                            className="text-neutral-400 hover:text-white text-sm"
-                          >
-                            Clear
-                          </button>
-                          <button
-                            type="button"
                             onClick={() => setShowTagsDropdown(false)}
-                            className="text-neutral-400 hover:text-white text-sm"
+                            className="w-full bg-neutral-800 hover:bg-neutral-700 text-white py-2 px-4 rounded text-sm"
                           >
                             Close
                           </button>
