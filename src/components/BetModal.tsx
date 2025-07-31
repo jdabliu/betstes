@@ -275,8 +275,8 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                     role="combobox" 
                     type="button" 
                     aria-haspopup="dialog" 
-                    aria-expanded="false" 
-                    data-state="closed"
+                    aria-expanded={showTagsDropdown ? "true" : "false"}
+                    data-state={showTagsDropdown ? "open" : "closed"}
                     onClick={() => setShowTagsDropdown(!showTagsDropdown)}
                   >
                     <div className="mx-auto flex w-full items-center justify-between">
