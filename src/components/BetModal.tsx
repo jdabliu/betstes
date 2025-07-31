@@ -62,7 +62,7 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
     } else if (line.type === 'total') {
       description = line.description;
     } else {
-      description = line.team ? `${line.team} ${line.description}` : line.description;
+      description = line.team ? `${line.team}` : line.description;
     }
 
     const bet = {
@@ -134,110 +134,135 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
     if (line.type === 'handicap') {
       const team = line.team === match.homeTeam ? match.homeTeam : match.awayTeam;
       return `${line.description} ${team}`;
+    } else if (line.type === 'total') {
+      return line.description;
+    } else {
+      return line.team || match.homeTeam;
     }
-    return line.description;
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div 
         role="dialog" 
-        className="fixed z-50 grid gap-4 border border-neutral-800 bg-neutral-950 p-6 shadow-lg duration-200 sm:rounded-lg left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg w-[400px]"
+        aria-describedby="radix-rri" 
+        aria-labelledby="radix-rrh" 
+        data-state="open" 
+        className="fixed z-50 grid gap-4 border border-neutral-200 bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dark:border-neutral-800 dark:bg-neutral-950 sm:rounded-lg left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] max-w-lg w-[400px]" 
+        tabIndex={-1} 
         style={{ pointerEvents: 'auto' }}
       >
-        {/* Header */}
         <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-          <h2 className="text-lg font-semibold leading-none tracking-tight text-white">Log bet</h2>
+          <h2 id="radix-rrh" className="text-lg font-semibold leading-none tracking-tight">Log bet</h2>
         </div>
-
-        {/* Content */}
+        
         <div className="max-sm:overflow-auto max-sm:px-4">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Match Selection */}
             <div className="space-y-2">
-              <button
-                type="button"
-                className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-center font-normal border border-neutral-800 bg-neutral-950 hover:bg-neutral-900 text-white h-10 px-4 py-2 sm:max-w-[350px]"
-                disabled
+              <button 
+                className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 data-[state=open]:ring-2 data-[state=open]:ring-neutral-300 data-[state=open]:ring-offset-2 data-[state=open]:ring-offset-neutral-950 max-sm:text-base h-10 px-4 py-2 sm:max-w-[350px]" 
+                role="combobox" 
+                aria-expanded="false" 
+                type="button" 
+                aria-haspopup="dialog" 
+                data-state="closed"
               >
-                <span className="text-center flex-1">
-                  {match.homeTeam} vs {match.awayTeam} [Pre-match]
-                </span>
+                <span className="max-w-[90%] truncate text-left">{match.homeTeam} vs {match.awayTeam} [Pre-match]</span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </button>
             </div>
 
             {/* Period Selection */}
             <div className="space-y-2">
-              <button
-                type="button"
-                className="flex h-10 w-full items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 px-4 py-2 text-white hover:bg-neutral-900 transition-colors"
+              <button 
+                type="button" 
+                role="combobox" 
+                aria-expanded="false" 
+                aria-autocomplete="none" 
+                dir="ltr" 
+                data-state="closed" 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 dark:data-[placeholder]:text-neutral-400 sm:text-sm [&>span]:line-clamp-1"
               >
-                <span className="flex-1 text-center">{period}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
+                <span style={{ pointerEvents: 'none' }}>Match</span>
+                <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
               </button>
+              <select aria-hidden="true" tabIndex={-1} style={{ position: 'absolute', border: '0px', width: '1px', height: '1px', padding: '0px', margin: '-1px', overflow: 'hidden', clip: 'rect(0px, 0px, 0px, 0px)', whiteSpace: 'nowrap', overflowWrap: 'normal' }}>
+                <option value="num_0" selected>Match</option>
+                <option value="num_1">1st Half</option>
+              </select>
             </div>
 
             {/* Market Selection */}
             <div className="space-y-2">
-              <button
-                type="button"
-                className="flex h-10 w-full items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 px-4 py-2 text-white hover:bg-neutral-900 transition-colors"
+              <button 
+                type="button" 
+                role="combobox" 
+                aria-expanded="false" 
+                aria-autocomplete="none" 
+                dir="ltr" 
+                data-state="closed" 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 dark:data-[placeholder]:text-neutral-400 sm:text-sm [&>span]:line-clamp-1"
               >
-                <span className="flex-1 text-center">{market}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
+                <span style={{ pointerEvents: 'none' }}>{market}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
               </button>
+              <select aria-hidden="true" tabIndex={-1} style={{ position: 'absolute', border: '0px', width: '1px', height: '1px', padding: '0px', margin: '-1px', overflow: 'hidden', clip: 'rect(0px, 0px, 0px, 0px)', whiteSpace: 'nowrap', overflowWrap: 'normal' }}>
+                <option value="MONEY_LINE_3_WAY">Moneyline (3-way)</option>
+                <option value="SPREAD">Spreads</option>
+                <option value="TOTAL">Totals</option>
+              </select>
             </div>
 
             {/* Outcome Selection */}
             <div className="space-y-2">
-              <button
-                type="button"
-                className="flex h-10 w-full items-center justify-center rounded-md border border-neutral-800 bg-neutral-950 px-4 py-2 text-white hover:bg-neutral-900 transition-colors"
-                disabled
+              <button 
+                type="button" 
+                role="combobox" 
+                aria-expanded="false" 
+                aria-autocomplete="none" 
+                dir="ltr" 
+                data-state="closed" 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 dark:data-[placeholder]:text-neutral-400 sm:text-sm [&>span]:line-clamp-1"
               >
-                <span className="flex-1 text-center">{getOutcomeText()}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
+                <span style={{ pointerEvents: 'none' }}>{getOutcomeText()}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
               </button>
             </div>
 
-            {/* Divider */}
+            {/* Divider and Odds/Stake section */}
             <div style={{ opacity: 1, height: 'auto' }}>
               <hr className="border-neutral-800" />
-              
-              {/* Odds and Stake section */}
               <div className="mt-4 flex flex-col gap-4">
                 <div className="flex items-end gap-2">
-                  <div className="space-y-2 flex-1">
-                    <label className="text-sm font-medium leading-none text-white">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       Odds
                     </label>
-                    <input
-                      type="text"
-                      value={odds}
+                    <input 
+                      className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:ring-neutral-300 sm:text-sm sm:file:text-sm" 
+                      inputMode="numeric" 
+                      pattern="[0-9]*[.,]?[0-9]*" 
+                      type="text" 
+                      value={odds} 
                       onChange={(e) => setOdds(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-white placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
-                      inputMode="numeric"
-                      pattern="[0-9]*[.,]?[0-9]*"
+                      name="odds" 
                     />
                   </div>
-                  
-                  <div className="space-y-2 flex-1">
-                    <label className="text-sm font-medium leading-none text-white">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       Stake
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">R$</span>
-                      <input
-                        type="text"
-                        value={stake}
+                      <input 
+                        className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:placeholder:text-neutral-400 dark:focus-visible:ring-neutral-300 sm:text-sm sm:file:text-sm pl-11" 
+                        inputMode="decimal" 
+                        pattern="[0-9]*[.,]?[0-9]{0,2}" 
+                        type="text" 
+                        value={stake} 
                         onChange={(e) => !settings.lockStake && setStake(e.target.value)}
                         disabled={settings.lockStake}
-                        className={`flex h-10 w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-white placeholder:text-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 pl-11 ${
-                          settings.lockStake ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        inputMode="decimal"
-                        pattern="[0-9]*[.,]?[0-9]{0,2}"
                       />
                     </div>
                   </div>
@@ -245,13 +270,17 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
                 {/* Tags Selection */}
                 <div className="space-y-2 relative">
-                  <button
-                    type="button"
+                  <button 
+                    className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 data-[state=open]:ring-2 data-[state=open]:ring-neutral-300 data-[state=open]:ring-offset-2 data-[state=open]:ring-offset-neutral-950 max-sm:text-base h-10 px-4 py-[0.4375rem] [&>span]:line-clamp-1" 
+                    role="combobox" 
+                    type="button" 
+                    aria-haspopup="dialog" 
+                    aria-expanded="false" 
+                    data-state="closed"
                     onClick={() => setShowTagsDropdown(!showTagsDropdown)}
-                    className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-800 bg-neutral-950 hover:bg-neutral-900 text-white h-10 px-4 py-2"
                   >
-                    <div className="mx-auto flex w-full items-center justify-center">
-                      <span className="text-center opacity-50 flex-1">
+                    <div className="mx-auto flex w-full items-center justify-between">
+                      <span className="text-base opacity-50 sm:text-sm">
                         {selectedTags.length > 0 
                           ? `${selectedTags.length} tag(s) selected`
                           : 'Select tags (optional)'
@@ -326,37 +355,22 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                     </div>
                   )}
                 </div>
-
-                {/* Bookmaker Display */}
-                <div className="flex items-center justify-center">
-                  <div className="flex items-center space-x-2 bg-neutral-800 px-3 py-2 rounded-lg">
-                    <span className="text-white text-sm">{selectedBookmaker}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedBookmaker('bet365')}
-                      className="text-neutral-400 hover:text-white"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                    <ChevronDown className="h-4 w-4 text-neutral-400" />
-                  </div>
-                </div>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-2">
-              <button
+              <button 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-100 text-neutral-900 dark:text-neutral-50 hover:bg-neutral-100/80 dark:bg-neutral-800 dark:hover:bg-neutral-800/80 h-10 px-4 py-2 max-sm:text-base" 
                 type="button"
                 onClick={onClose}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-800 text-neutral-50 hover:bg-neutral-800/80 h-10 px-4 py-2"
               >
                 Cancel
               </button>
-              <button
-                type="submit"
+              <button 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-900 text-neutral-50 hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90 h-10 px-4 py-2 max-sm:text-base" 
+                type="submit" 
                 disabled={!stake || !odds}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 bg-neutral-50 text-neutral-900 hover:bg-neutral-50/90 h-10 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Log bet
               </button>
@@ -365,10 +379,10 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
         </div>
 
         {/* Close Button */}
-        <button
-          type="button"
+        <button 
+          type="button" 
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-neutral-100 data-[state=open]:text-neutral-500 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 dark:data-[state=open]:bg-neutral-800 dark:data-[state=open]:text-neutral-400"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 dark:data-[state=open]:bg-neutral-800 dark:data-[state=open]:text-neutral-400 text-white"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
