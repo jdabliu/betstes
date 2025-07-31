@@ -139,12 +139,15 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Match Selection */}
             <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                Match
+              </label>
               <button
                 type="button"
                 className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 h-10 px-4 py-2 sm:max-w-[350px]"
                 disabled
               >
-                <span className="max-w-[90%] truncate text-left text-white">
+                <span className="max-w-[90%] truncate text-center text-white flex-1">
                   {match.homeTeam} vs {match.awayTeam} [Pre-match]
                 </span>
                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -153,6 +156,9 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
             {/* Period Selection */}
             <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                Period
+              </label>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
@@ -165,6 +171,9 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
             {/* Market Selection */}
             <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                Market
+              </label>
               <select
                 value={market}
                 onChange={(e) => setMarket(e.target.value)}
@@ -178,12 +187,15 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
 
             {/* Outcome Selection */}
             <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                Outcome
+              </label>
               <button
                 type="button"
                 className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 sm:text-sm text-white"
                 disabled
               >
-                <span>{getOutcomeText()}</span>
+                <span className="flex-1 text-center">{getOutcomeText()}</span>
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </button>
             </div>
@@ -228,15 +240,33 @@ export const BetModal: React.FC<BetModalProps> = ({ isOpen, onClose, line, match
                 </div>
               </div>
 
+              {/* Bookmaker Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                  Bookmaker
+                </label>
+                <select
+                  value={selectedBookmaker}
+                  onChange={(e) => setSelectedBookmaker(e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-4 py-2 text-base ring-offset-white focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus:ring-neutral-300 sm:text-sm text-white"
+                >
+                  {bookmakers.map(bookmaker => (
+                    <option key={bookmaker} value={bookmaker}>{bookmaker}</option>
+                  ))}
+                </select>
+              </div>
               {/* Tags Selection */}
               <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white">
+                  Tags (optional)
+                </label>
                 <button
                   type="button"
                   className="items-center whitespace-nowrap rounded-md text-sm ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 flex shrink-0 w-full justify-between font-normal border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-950 dark:hover:text-neutral-50 h-10 px-4 py-[0.4375rem]"
                 >
                   <div className="mx-auto flex w-full items-center justify-between">
-                    <span className="text-base opacity-50 sm:text-sm text-white">
-                      Select tags (optional)
+                    <span className="text-base opacity-50 sm:text-sm text-white flex-1 text-center">
+                      Select tags
                     </span>
                     <ChevronDown className="ml-2 h-4 w-4 cursor-pointer opacity-50" />
                   </div>
